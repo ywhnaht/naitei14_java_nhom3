@@ -22,16 +22,6 @@ import java.util.List;
 @Configuration
 @EnableJpaAuditing
 public class SecurityConfig {
-    private static final String[] SWAGGER_WHITELIST = {
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-config",
-            "/swagger-resources/**",
-            "/webjars/**"
-    };
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
