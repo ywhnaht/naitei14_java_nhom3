@@ -25,9 +25,10 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
 
-        ApiResponse<Object> errorResponse = ApiResponse
-                .builder()
+        ApiResponse<Object> errorResponse = ApiResponse.builder()
+                .code(401)
                 .message("Yêu cầu xác thực không thành công: " + authException.getMessage())
                 .result(null)
                 .build();
