@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = BadCredentialsException.class)
     ResponseEntity<ApiResponse<?>> handleBadCredentialsException(BadCredentialsException exception) {
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        ErrorCode errorCode = ErrorCode.INVALID_CREDENTIALS;
 
         return ResponseEntity.status(errorCode.getHttpStatusCode())
                 .body(ApiResponse.builder()
