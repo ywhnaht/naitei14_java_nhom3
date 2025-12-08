@@ -1,6 +1,7 @@
 package org.example.framgiabookingtours.config;
 
 import lombok.RequiredArgsConstructor;
+import org.example.framgiabookingtours.exception.ErrorCode;
 import org.example.framgiabookingtours.util.JwtAuthEntryPoint;
 import org.example.framgiabookingtours.util.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     private static final String[] PUBLIC_URLS = {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**",
@@ -73,6 +76,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/my-bookings").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -80,14 +84,26 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/admin/dashboard", true)
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureHandler(customAuthenticationFailureHandler)
                         .permitAll()
                 )
 
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+                            response.sendRedirect("/login?error=access_denied&message=" + errorCode.getMessage() +
+                                    "&code=" + errorCode.getCode());
+                        })
                 )
                 .build();
     }
