@@ -10,6 +10,7 @@ import org.example.framgiabookingtours.dto.response.CategoryResponseDTO;
 import org.example.framgiabookingtours.service.CategoryService;
 import org.example.framgiabookingtours.service.TourService;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,6 +26,7 @@ import java.util.List;
 @RequestMapping("/admin/tours")
 @RequiredArgsConstructor
 @Slf4j
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminTourController {
 
     private final TourService tourService;
