@@ -5,6 +5,7 @@ import org.example.framgiabookingtours.dto.request.CategoryRequestDTO;
 import org.example.framgiabookingtours.dto.response.CategoryResponseDTO;
 import org.example.framgiabookingtours.exception.AppException;
 import org.example.framgiabookingtours.service.CategoryService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin/categories")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminCategoryController {
 
     private final CategoryService categoryService;

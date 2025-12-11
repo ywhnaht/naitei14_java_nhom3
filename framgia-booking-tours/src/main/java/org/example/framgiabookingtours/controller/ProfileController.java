@@ -14,6 +14,7 @@ import org.example.framgiabookingtours.exception.ErrorCode;
 import org.example.framgiabookingtours.service.ImageUploadService;
 import org.example.framgiabookingtours.service.ProfileService;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/profiles")
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class ProfileController {
 
 	private final ProfileService profileService;

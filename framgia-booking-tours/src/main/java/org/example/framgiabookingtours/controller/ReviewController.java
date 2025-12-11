@@ -9,6 +9,7 @@ import org.example.framgiabookingtours.dto.request.UpdateReviewRequestDTO;
 import org.example.framgiabookingtours.dto.response.ReviewResponseDTO;
 import org.example.framgiabookingtours.service.ReviewService;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ public class ReviewController {
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<ReviewResponseDTO> createReview(
             @RequestPart("data") @Valid String dataJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
@@ -47,6 +49,7 @@ public class ReviewController {
     }
 
     @PutMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<ReviewResponseDTO> updateReview(
             @PathVariable Long reviewId,
             @RequestPart("data") @Valid String dataJson,
@@ -70,6 +73,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<Void> deleteReview(
             @PathVariable Long reviewId,
             @RequestHeader(value = "X-User-Email", required = false) String headerEmail,
@@ -89,6 +93,7 @@ public class ReviewController {
      * POST /api/reviews/{reviewId}/like
      */
     @PostMapping("/{reviewId}/like")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<Void> toggleLikeReview(
             @PathVariable Long reviewId,
             @RequestHeader(value = "X-User-Email", required = false) String headerEmail,
