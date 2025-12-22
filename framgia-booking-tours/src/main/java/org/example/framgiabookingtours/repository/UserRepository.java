@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
 	// Đếm user đăng ký sau ngày X
 	long countByCreatedAtAfter(LocalDateTime date);
+	long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

@@ -32,26 +32,41 @@ public class DashboardServiceImpl implements DashboardService {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime startOfToday = now.toLocalDate().atStartOfDay();
 		LocalDateTime startOf7DaysAgo = now.minusDays(7);
+		LocalDateTime startOf14DaysAgo = now.minusDays(14);
 
-		// 1. Tính Doanh thu
+		// --- 1. TÍNH DOANH THU & TĂNG TRƯỞNG (Tháng này vs Tháng trước) ---
+		// Tổng doanh thu toàn thời gian
 		BigDecimal totalRevenue = bookingRepository.sumTotalRevenue();
-		// (Logic tính % tăng trưởng tạm thời để 0 hoặc random cho đẹp giao diện trước,
-		// làm kỹ sau)
-		double revenueGrowth = 12.5;
+		if (totalRevenue == null)
+			totalRevenue = BigDecimal.ZERO;
 
-		// 2. Booking hôm nay
+		// Doanh thu tháng này
+		BigDecimal currentMonthRevenue = bookingRepository.sumRevenueByMonth(now.getMonthValue(), now.getYear());
+		// Doanh thu tháng trước
+		LocalDateTime lastMonthDate = now.minusMonths(1);
+		BigDecimal lastMonthRevenue = bookingRepository.sumRevenueByMonth(lastMonthDate.getMonthValue(),
+				lastMonthDate.getYear());
+
+		// Tính % tăng trưởng doanh thu
+		double revenueGrowth = calculateGrowth(currentMonthRevenue.doubleValue(), lastMonthRevenue.doubleValue());
+
+		// --- 2. BOOKING HÔM NAY ---
 		long todayBookings = bookingRepository.countByBookingDateBetween(startOfToday, now);
 
-		// 3. User mới 7 ngày
-		long newUsers = userRepository.countByCreatedAtAfter(startOf7DaysAgo);
+		// --- 3. USER MỚI & TĂNG TRƯỞNG (7 ngày qua vs 7 ngày trước đó) ---
+		long newUsers7Days = userRepository.countByCreatedAtAfter(startOf7DaysAgo);
+		long previous7DaysUsers = userRepository.countByCreatedAtBetween(startOf14DaysAgo, startOf7DaysAgo);
 
-		// 4. Tour
+		// Tính % tăng trưởng user
+		double userGrowth = calculateGrowth((double) newUsers7Days, (double) previous7DaysUsers);
+
+		// --- 4. TOUR ---
 		long totalTours = tourRepository.count();
 		long activeTours = tourRepository.countByStatus(TourStatus.AVAILABLE);
 
 		return AdminDashboardStatsDTO.builder().totalRevenue(totalRevenue).revenueGrowth(revenueGrowth)
-				.todayBookings(todayBookings).newUsers7Days(newUsers).userGrowth(5.2) // Mock tạm
-				.totalTours(totalTours).activeTours(activeTours).build();
+				.todayBookings(todayBookings).newUsers7Days(newUsers7Days).userGrowth(userGrowth).totalTours(totalTours)
+				.activeTours(activeTours).build();
 	}
 
 	@Override
@@ -76,5 +91,18 @@ public class DashboardServiceImpl implements DashboardService {
 	@Override
 	public List<BookingStatusDTO> getStatusChartData() {
 		return bookingRepository.getBookingStatusStats();
+	}
+
+	private double calculateGrowth(double current, double previous) {
+		if (previous == 0) {
+			// Nếu kỳ trước bằng 0:
+			// - Nếu kỳ này > 0 -> Tăng trưởng 100% (hoặc vô cùng, nhưng để 100 hiển thị cho
+			// đẹp)
+			// - Nếu kỳ này = 0 -> Tăng trưởng 0%
+			return current > 0 ? 100.0 : 0.0;
+		}
+		double growth = ((current - previous) / previous) * 100;
+		// Làm tròn 1 chữ số thập phân
+		return Math.round(growth * 10.0) / 10.0;
 	}
 }

@@ -4,59 +4,156 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - Framgia Booking Admin</title>
-
-<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- FontAwesome -->
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<!-- Chart.js -->
 <script
 	src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" th:href="@{/css/admin.css}">
+<style>
+.kpi-card {
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-<!-- Custom CSS -->
-<link rel="stylesheet" th:href="@{css/admin.css}">
+.kpi-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+</style>
 </head>
 <body class="bg-gray-50 font-sans">
 
 	<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-	<div class="ml-64">
+	<div class="ml-64 transition-all duration-300">
 		<div th:replace="~{fragments/header :: header}"></div>
 
 		<main class="p-8">
-			<h1 class="text-2xl font-bold text-gray-800 mb-6">Tổng quan hệ
-				thống (Debug Mode)</h1>
+			<div class="mb-8 flex justify-between items-end">
+				<div>
+					<h2 class="text-3xl font-bold text-gray-900">Dashboard</h2>
+					<p class="text-gray-600 mt-2">Tổng quan hoạt động kinh doanh</p>
+				</div>
+			</div>
 
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			<div
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+				<div
+					class="kpi-card bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
+					<div class="flex justify-between items-start mb-4">
+						<div class="bg-white/20 rounded-lg p-3 backdrop-blur-sm">
+							<i class="fas fa-dollar-sign text-2xl"></i>
+						</div>
+						<span
+							class="bg-green-400/20 text-green-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-400/30">
+							+<span th:text="${stats.revenueGrowth}">0</span>%
+						</span>
+					</div>
+					<h3 class="text-blue-100 text-sm font-medium mb-1">Tổng Doanh
+						Thu</h3>
+					<p class="text-3xl font-bold tracking-tight"
+						th:text="${#numbers.formatDecimal(stats.totalRevenue, 0, 'POINT', 0, 'COMMA')} + ' ₫'">0
+						₫</p>
+				</div>
 
 				<div
-					class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-					<h3 class="font-bold text-blue-600 mb-2">📊 Dữ liệu KPI
-						(Stats)</h3>
-					<div
-						class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto h-96 text-xs font-mono">
-						<pre th:text="${debugKPI}">Đang tải dữ liệu...</pre>
+					class="kpi-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+					<div class="flex justify-between items-start mb-4">
+						<div class="bg-orange-100 rounded-lg p-3 text-orange-600">
+							<i class="fas fa-calendar-check text-2xl"></i>
+						</div>
+					</div>
+					<h3 class="text-gray-500 text-sm font-medium mb-1">Booking Hôm
+						Nay</h3>
+					<div class="flex items-baseline gap-2">
+						<p class="text-3xl font-bold text-gray-900"
+							th:text="${stats.todayBookings}">0</p>
+						<span class="text-sm text-gray-400">đơn mới</span>
 					</div>
 				</div>
 
 				<div
-					class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-					<h3 class="font-bold text-purple-600 mb-2">📈 Dữ liệu Biểu đồ
-						(Charts)</h3>
-					<div
-						class="bg-gray-900 text-yellow-400 p-4 rounded-lg overflow-auto h-96 text-xs font-mono">
-						<pre th:text="${debugCharts}">Đang tải dữ liệu...</pre>
+					class="kpi-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+					<div class="flex justify-between items-start mb-4">
+						<div class="bg-purple-100 rounded-lg p-3 text-purple-600">
+							<i class="fas fa-user-plus text-2xl"></i>
+						</div>
+						<span
+							class="bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+							+<span th:text="${stats.userGrowth}">0</span>%
+						</span>
+					</div>
+					<h3 class="text-gray-500 text-sm font-medium mb-1">Khách Hàng
+						Mới</h3>
+					<div class="flex items-baseline gap-2">
+						<p class="text-3xl font-bold text-gray-900"
+							th:text="${stats.newUsers7Days}">0</p>
+						<span class="text-sm text-gray-400">trong 7 ngày</span>
 					</div>
 				</div>
 
+				<div
+					class="kpi-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+					<div class="flex justify-between items-start mb-4">
+						<div class="bg-emerald-100 rounded-lg p-3 text-emerald-600">
+							<i class="fas fa-map-marked-alt text-2xl"></i>
+						</div>
+						<span
+							class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+							Running </span>
+					</div>
+					<h3 class="text-gray-500 text-sm font-medium mb-1">Tour Hoạt
+						Động</h3>
+					<div class="flex items-baseline gap-2">
+						<p class="text-3xl font-bold text-gray-900">
+							<span th:text="${stats.activeTours}">0</span> <span
+								class="text-lg text-gray-400 font-normal">/ <span
+								th:text="${stats.totalTours}">0</span></span>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+				<div
+					class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+					<div class="flex justify-between items-center mb-6">
+						<h3 class="text-lg font-bold text-gray-900">Doanh Thu Theo
+							Tháng</h3>
+
+						<div class="relative">
+							<select id="yearFilter"
+								class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32 p-2.5 pr-8 cursor-pointer">
+								<option value="2025" selected>Năm 2025</option>
+								<option value="2024">Năm 2024</option>
+							</select>
+							<div
+								class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+								<i class="fas fa-chevron-down text-xs"></i>
+							</div>
+						</div>
+					</div>
+					<div class="relative h-80 w-full">
+						<canvas id="revenueChart"></canvas>
+					</div>
+				</div>
+
+				<div
+					class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+					<h3 class="text-lg font-bold text-gray-900 mb-6">Trạng Thái
+						Booking</h3>
+					<div class="relative h-64 w-full flex justify-center">
+						<canvas id="statusChart"></canvas>
+					</div>
+					<div class="mt-6 space-y-3" id="statusLegend"></div>
+				</div>
 			</div>
 		</main>
 
 		<div th:replace="~{fragments/footer :: footer}"></div>
 	</div>
 
+	<script th:src="@{/js/dashboard.js}"></script>
 </body>
 </html>

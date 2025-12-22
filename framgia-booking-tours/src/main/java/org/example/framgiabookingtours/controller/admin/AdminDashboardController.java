@@ -2,9 +2,9 @@ package org.example.framgiabookingtours.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Map;
 
-import org.example.framgiabookingtours.dto.response.AdminDashboardStatsDTO;
 import org.example.framgiabookingtours.service.DashboardService;
 import org.example.framgiabookingtours.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/admin/dashboard")
@@ -40,46 +38,23 @@ public class AdminDashboardController {
 
 		model.addAttribute("activeMenu", "dashboard");
 
-		// HARDCODE NĂM 2025 ĐỂ TEST DỮ LIỆU GIẢ
-		int testYear = 2025;
+		// Lấy KPI tổng quan đổ vào Model để Thymeleaf hiển thị
+		model.addAttribute("stats", dashboardService.getDashboardStats());
 
-		// Lấy dữ liệu
-		var revenueData = dashboardService.getRevenueChartData(testYear);
-		var statusData = dashboardService.getStatusChartData();
-		var kpiData = dashboardService.getDashboardStats();
-
-		// Chuyển Object thành JSON String để hiển thị lên HTML
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			String jsonCharts = mapper.writerWithDefaultPrettyPrinter()
-					.writeValueAsString(Map.of("revenueChart", revenueData, "statusChart", statusData));
-
-			String jsonKPI = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(kpiData);
-
-			// Gửi sang View
-			model.addAttribute("debugCharts", jsonCharts);
-			model.addAttribute("debugKPI", jsonKPI);
-
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+		// Gửi năm hiện tại để hiển thị mặc định ở Dropdown
+		model.addAttribute("currentYear", LocalDate.now().getYear());
 
 		return "admin/dashboard";
 	}
 
-	// --- TEST JSON ---
-	@GetMapping("/test-api")
+	// API Dữ liệu Biểu đồ có lọc theo năm
+	@GetMapping("/api/chart-data")
 	@ResponseBody
-	public ResponseEntity<AdminDashboardStatsDTO> getDashboardStatsAPI() {
-		AdminDashboardStatsDTO stats = dashboardService.getDashboardStats();
-		return ResponseEntity.ok(stats);
-	}
+	public ResponseEntity<?> getChartDataAPI(@RequestParam(name = "year", required = false) Integer year) {
+		// Nếu không truyền year, lấy năm hiện tại
+		int selectedYear = (year != null) ? year : LocalDate.now().getYear();
 
-	@GetMapping("/test-charts")
-	@ResponseBody
-	public ResponseEntity<?> getChartDataAPI() {
-		int currentYear = 2025; // Hardcode 2025 để test
-		return ResponseEntity.ok(Map.of("revenueChart", dashboardService.getRevenueChartData(currentYear),
+		return ResponseEntity.ok(Map.of("revenueChart", dashboardService.getRevenueChartData(selectedYear),
 				"statusChart", dashboardService.getStatusChartData()));
 	}
 }

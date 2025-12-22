@@ -33,8 +33,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	// Đếm số booking trong khoảng thời gian (Dùng cho Booking hôm nay)
 	long countByBookingDateBetween(LocalDateTime start, LocalDateTime end);
 
-  List<Booking> findByUserIdOrderByBookingDateDesc(Long userId);
-
     @EntityGraph(attributePaths = {"user", "user.profile", "tour"})
     @Query("SELECT b FROM Booking b WHERE " +
             "(:keyword IS NULL OR :keyword = '' OR " +
